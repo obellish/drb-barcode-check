@@ -1,0 +1,9 @@
+too-many-arguments-threshold = 16
+type-complexity-threshold = 1000
+too-many-lines-threshold = 1000
+avoid-breaking-exported-api = false
+trivial-copy-size-limit = 256
+pass-by-value-size-limit = 256
+allow-unwrap-in-tests = true
+disallowed-macros = ["dbg", "std::unimplemented"]
+doc-valid-idents = ["AccessKit", ".."]

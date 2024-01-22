@@ -1,0 +1,20 @@
+build.rustdocflags = ["--cfg", "docsrs", "--show-type-layout", "-Z", "unstable-options"]
+
+[alias]
+coverage = "tarpaulin --output-dir ./target/tarpaulin --skip-clean"
+full-doc = "doc --keep-going --all-features -Zrustdoc-map -Zrustdoc-scrape-examples"
+full-test = "test --all-features --workspace"
+run-b = "run --bin toolbox-backend"
+run-f = "run --bin toolbox-frontend"
+
+[target.'cfg(not(target_arch = "wasm32"))']
+rustflags = ["-C", "target-cpu=native"]
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[doc.extern-map.registries]
+crates-io = "https://docs.rs/"
