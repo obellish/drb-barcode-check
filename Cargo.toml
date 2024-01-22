@@ -7,6 +7,14 @@ name = "drb-barcode-check"
 rust-version.workspace = true
 version.workspace = true
 
+[build-dependencies]
+build-helper = { path = "./crates/build-helper" }
+cmake = "0.1"
+
+[workspace]
+members = ["./crates/*"]
+resolver = "2"
+
 [workspace.lints.rust]
 elided_lifetimes_in_paths = "warn"
 
