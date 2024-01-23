@@ -1,6 +1,0 @@
-[submodule "lib/msgpack11"]
-	path = lib/msgpack11
-	url = https://github.com/SICKAG/msgpack11.git
-[submodule "lib/sick_scan_xd"]
-	path = lib/sick_scan_xd
-	url = https://github.com/SICKAG/sick_scan_xd.git

@@ -7,12 +7,10 @@ name = "drb-barcode-check"
 rust-version.workspace = true
 version.workspace = true
 
-[build-dependencies]
-build-helper = { path = "./crates/build-helper" }
-cmake = "0.1"
+[dependencies]
+winit = "0.29"
 
 [workspace]
-members = ["./crates/*"]
 resolver = "2"
 
 [workspace.lints.rust]
@@ -41,6 +39,7 @@ todo = "deny"
 try_err = "warn"
 undocumented_unsafe_blocks = "deny"
 unimplemented = "deny"
+unnecessary_wraps = "allow"
 unsafe_derive_deserialize = "allow"
 used_underscore_binding = "allow"
 
