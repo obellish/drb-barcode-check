@@ -1,63 +1,35 @@
-#![allow(unused)]
+#![cfg_attr(
+	all(not(debug_assertions), target_os = "windows"),
+	windows_subsystem = "windows"
+)]
 
-use std::sync::atomic::{AtomicBool, Ordering};
-
-use drb_barcode_check::Result;
-use winit::{
-	event::{ElementState, Event, WindowEvent},
-	event_loop::{EventLoop, EventLoopBuilder},
-	keyboard::{Key, NamedKey},
-	platform::{modifier_supplement::KeyEventExtModifierSupplement, windows::DeviceIdExtWindows},
-	window::WindowBuilder,
-};
-
-const CONTROL_CODE: &str = "-CONTROL CODE-";
+use drb_barcode_check::{prelude::*, EframeError, MainApp};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 fn main() -> Result<()> {
-	let event_loop = EventLoop::new()?;
-	let _window = WindowBuilder::new().build(&event_loop)?;
+	let log_filter_layer = EnvFilter::try_from_default_env()
+		.or_else(|_| EnvFilter::try_new("debug"))
+		.into_diagnostic()?;
 
-	let mut first_buffer = String::new();
-	let mut second_buffer = String::new();
+	// We don't need thread IDs/names because it's single threaded.
+	let log_fmt_layer = fmt::layer()
+		.pretty()
+		.with_thread_ids(false)
+		.with_thread_names(false);
 
-	let mut text = String::new();
+	tracing_subscriber::registry()
+		.with(log_filter_layer)
+		.with(log_fmt_layer)
+		.try_init()
+		.into_diagnostic()?;
 
-	event_loop.run(move |event, elwt| {
-		if let Event::WindowEvent { event, .. } = event {
-			match event {
-				WindowEvent::CloseRequested => elwt.exit(),
-				WindowEvent::KeyboardInput {
-					event, device_id, ..
-				} => {
-					if event.state == ElementState::Pressed && !event.repeat {
-						match event.logical_key {
-							Key::Character(c) => text.push_str(c.as_str()),
-							Key::Named(named) => {
-								if let Some(t) = named.to_text() {
-									text.push_str(t);
-								}
-							}
-							_ => {}
-						}
-						if text.len() == 14 {
-							if first_buffer.is_empty() {
-								first_buffer.push_str(&text);
-							} else if second_buffer.is_empty() {
-								second_buffer.push_str(&text);
-							}
-							text.clear();
-						}
-
-						if first_buffer.len() == 14 && second_buffer.len() == 14 {
-							first_buffer.clear();
-							second_buffer.clear();
-						}
-					}
-				}
-				_ => std::thread::yield_now(),
-			}
-		}
-	})?;
+	eframe::run_native(
+		"DRB Barcode Checker",
+		eframe::NativeOptions::default(),
+		Box::new(|_| Box::<MainApp>::default()),
+	)
+	.map_err(EframeError::from)
+	.into_diagnostic()?;
 
 	Ok(())
 }
