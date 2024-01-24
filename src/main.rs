@@ -11,6 +11,8 @@ use winit::{
 	window::WindowBuilder,
 };
 
+const CONTROL_CODE: &str = "-CONTROL CODE-";
+
 fn main() -> Result<()> {
 	let event_loop = EventLoop::new()?;
 	let window = WindowBuilder::new().build(&event_loop)?;
@@ -39,11 +41,11 @@ fn main() -> Result<()> {
 					if text.len() == 14 {
 						println!("{device_id:?}");
 						match (first_scanner.is_setup(), second_scanner.is_setup()) {
-							(false, _) => {
+							(false, _) if text == CONTROL_CODE => {
 								first_scanner.device_id = Some(device_id);
 								println!("first scanner setup complete");
 							}
-							(true, false) => {
+							(true, false) if text == CONTROL_CODE => {
 								second_scanner.device_id = Some(device_id);
 
 								assert_ne!(
@@ -60,6 +62,7 @@ fn main() -> Result<()> {
 									second_scanner.push_str(&text);
 								}
 							}
+							_ => {}
 						}
 						text.clear();
 					}
