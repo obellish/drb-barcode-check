@@ -11,6 +11,8 @@ version.workspace = true
 eframe = "0.25"
 miette = { version = "5.10", features = ["fancy"] }
 send-helper = { git = "https://github.com/obellish/mpi-rusty-toolbox.git", rev = "fc0308a7f637db16982de4860252529a4ea7fed1" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 tracing = "0.1"
 tracing-log = "0.2"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["ansi", "env-filter", "fmt", "std", "tracing-log"] }

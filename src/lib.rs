@@ -1,5 +1,6 @@
 pub mod buffer;
 mod eframe_error;
+pub mod last_scan;
 pub mod prelude;
 
 pub use eframe::egui;
@@ -9,6 +10,7 @@ pub use self::eframe_error::EframeError;
 use self::{
 	buffer::Buffer,
 	egui::{Color32, Layout, RichText},
+	last_scan::LastScan,
 };
 
 #[derive(Debug)]
@@ -16,6 +18,7 @@ pub struct MainApp {
 	first_buffer: Buffer,
 	second_buffer: Buffer,
 	status: Option<bool>,
+	last_scan: Option<LastScan>,
 }
 
 impl MainApp {
@@ -25,6 +28,7 @@ impl MainApp {
 			first_buffer: Buffer::new(14),
 			second_buffer: Buffer::new(14),
 			status: None,
+			last_scan: None,
 		}
 	}
 
@@ -64,6 +68,10 @@ impl eframe::App for MainApp {
 				self.reset();
 			}
 
+			ui.separator();
+
+			ui.label(RichText::new(serde_json::to_string_pretty(&self.last_scan).unwrap()).code());
+
 			egui::SidePanel::right("Status Window")
 				.frame(window_frame)
 				.show(ui.ctx(), |ui| {
@@ -87,8 +95,12 @@ impl eframe::App for MainApp {
 				second_scanner_res.request_focus();
 			} else {
 				self.status = Some(self.first_buffer == self.second_buffer);
-				self.first_buffer.clear();
-				self.second_buffer.clear();
+				// self.first_buffer.clear();
+				// self.second_buffer.clear();
+				self.last_scan = Some(LastScan::new(
+					self.first_buffer.take(),
+					self.second_buffer.take(),
+				));
 			}
 		});
 	}
