@@ -77,6 +77,7 @@ impl eframe::App for MainApp {
 
 			if self.first_buffer.is_mutable() {
 				first_scanner_res.request_focus();
+				self.second_buffer.clear();
 			} else if self.second_buffer.is_mutable() {
 				self.status = None;
 				second_scanner_res.request_focus();
