@@ -19,13 +19,18 @@ impl Buffer {
 	}
 
 	fn cut_to_capacity(&mut self) -> usize {
-		let mut count = 0;
-		while self.inner.len() > self.cap {
-			self.inner.pop();
-			count += 1;
-		}
+		// let mut count = 0;
+		// while self.inner.len() > self.cap {
+		// 	self.inner.pop();
+		// 	count += 1;
+		// }
 
-		count
+		// count
+		let old_length = self.inner.len();
+
+		self.inner.truncate(self.cap);
+
+		old_length - self.inner.len()
 	}
 
 	pub fn clear(&mut self) {
@@ -73,5 +78,21 @@ impl TextBuffer for Buffer {
 	fn replace_with(&mut self, text: &str) {
 		self.inner = text.to_owned();
 		self.cut_to_capacity();
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::Buffer;
+
+	#[test]
+	fn trims_correctly() {
+		let mut buf = Buffer::new(5);
+
+		buf.inner.push_str("Hello, world!");
+		let cut = buf.cut_to_capacity();
+
+		assert_eq!(buf.inner, "Hello");
+		assert_eq!(cut, 8);
 	}
 }

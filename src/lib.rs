@@ -27,6 +27,12 @@ impl MainApp {
 			status: None,
 		}
 	}
+
+	fn reset(&mut self) {
+		self.first_buffer.clear();
+		self.second_buffer.clear();
+		self.status = None;
+	}
 }
 
 impl Default for MainApp {
@@ -55,9 +61,7 @@ impl eframe::App for MainApp {
 			};
 
 			if ui.button("Reset").clicked() {
-				self.first_buffer.clear();
-				self.second_buffer.clear();
-				self.status = None;
+				self.reset();
 			}
 
 			egui::SidePanel::right("Status Window")
