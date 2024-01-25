@@ -36,6 +36,7 @@ impl MainApp {
 		self.first_buffer.clear();
 		self.second_buffer.clear();
 		self.status = None;
+		self.last_scan = None;
 	}
 }
 
