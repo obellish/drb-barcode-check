@@ -19,13 +19,6 @@ impl Buffer {
 	}
 
 	fn cut_to_capacity(&mut self) -> usize {
-		// let mut count = 0;
-		// while self.inner.len() > self.cap {
-		// 	self.inner.pop();
-		// 	count += 1;
-		// }
-
-		// count
 		let old_length = self.inner.len();
 
 		self.inner.truncate(self.cap);
