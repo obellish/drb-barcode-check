@@ -26,7 +26,7 @@ fn main() -> Result<()> {
 	eframe::run_native(
 		"DRB Barcode Checker",
 		eframe::NativeOptions::default(),
-		Box::new(|_| Box::<MainApp>::default()),
+		Box::new(|cc| Box::new(MainApp::new(cc))),
 	)
 	.map_err(EframeError::from)
 	.into_diagnostic()?;

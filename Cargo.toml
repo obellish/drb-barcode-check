@@ -9,6 +9,7 @@ version.workspace = true
 
 [dependencies]
 eframe = "0.25"
+egui_extras = "0.25"
 miette = { version = "5.10", features = ["fancy"] }
 send-helper = { git = "https://github.com/obellish/mpi-rusty-toolbox.git", rev = "fc0308a7f637db16982de4860252529a4ea7fed1" }
 serde = { version = "1", features = ["derive"] }

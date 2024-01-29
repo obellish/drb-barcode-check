@@ -1,48 +1,36 @@
 pub mod buffer;
 mod eframe_error;
-pub mod last_scan;
 pub mod prelude;
+pub mod scan;
 
 pub use eframe::egui;
-use eframe::egui::TextBuffer;
+use eframe::{egui::TextBuffer, CreationContext};
 
 pub use self::eframe_error::EframeError;
-use self::{
-	buffer::Buffer,
-	egui::{Color32, Layout, RichText},
-	last_scan::LastScan,
-};
+use self::{buffer::Buffer, scan::Scan};
 
 #[derive(Debug)]
 pub struct MainApp {
 	first_buffer: Buffer,
 	second_buffer: Buffer,
-	status: Option<bool>,
-	last_scan: Option<LastScan>,
+	scans: [Option<Scan>; 21],
 }
 
 impl MainApp {
 	#[must_use]
-	pub fn new() -> Self {
+	pub fn new(cc: &CreationContext<'_>) -> Self {
+		egui_extras::install_image_loaders(&cc.egui_ctx);
 		Self {
 			first_buffer: Buffer::new(14),
 			second_buffer: Buffer::new(14),
-			status: None,
-			last_scan: None,
+			scans: default_array(),
 		}
 	}
 
 	fn reset(&mut self) {
 		self.first_buffer.clear();
 		self.second_buffer.clear();
-		self.status = None;
-		self.last_scan = None;
-	}
-}
-
-impl Default for MainApp {
-	fn default() -> Self {
-		Self::new()
+		self.scans = default_array();
 	}
 }
 
@@ -56,53 +44,59 @@ impl eframe::App for MainApp {
 
 			let second_scanner_res = ui.text_edit_singleline(&mut self.second_buffer);
 
-			let color = self
-				.status
-				.map(|status| if status { Color32::GREEN } else { Color32::RED });
-
-			let window_frame = egui::Frame {
-				fill: color.unwrap_or(ui.style().noninteractive().bg_fill),
-				..egui::Frame::side_top_panel(ui.style())
-			};
-
 			if ui.button("Reset").clicked() {
 				self.reset();
 			}
 
-			ui.separator();
-
-			ui.label(RichText::new(serde_json::to_string_pretty(&self.last_scan).unwrap()).code());
-
-			egui::SidePanel::right("Status Window")
-				.frame(window_frame)
+			egui::SidePanel::right("Last 20 Scans")
+				.resizable(true)
+				.min_width(201.0)
 				.show(ui.ctx(), |ui| {
-					ui.with_layout(
-						Layout::centered_and_justified(egui::Direction::TopDown),
-						|ui| {
-							if let Some(color) = color {
-								ui.label(RichText::new("").color(color));
-							} else {
-								ui.spinner();
+					egui_extras::StripBuilder::new(ui)
+						.sizes(egui_extras::Size::remainder(), self.scans.len() - 1)
+						.vertical(|mut strip| {
+							for (i, scan) in self.scans.iter().enumerate() {
+								if i == self.scans.len() - 1 {
+								} else if let Some(scan) = scan {
+									strip.cell(|ui| {
+										egui::Frame::none()
+											.fill(if scan.matched() {
+												egui::Color32::GREEN
+											} else {
+												egui::Color32::RED
+											})
+											.stroke((1.0, egui::Color32::GRAY))
+											.show(ui, |ui| {
+												ui.label(
+													egui::RichText::new(scan.to_string())
+														.color(egui::Color32::BLACK),
+												);
+											});
+									});
+								} else {
+									strip.empty();
+								}
 							}
-						},
-					);
+						});
 				});
 
 			if self.first_buffer.is_mutable() {
 				first_scanner_res.request_focus();
 				self.second_buffer.clear();
 			} else if self.second_buffer.is_mutable() {
-				self.status = None;
 				second_scanner_res.request_focus();
 			} else {
-				self.status = Some(self.first_buffer == self.second_buffer);
-				// self.first_buffer.clear();
-				// self.second_buffer.clear();
-				self.last_scan = Some(LastScan::new(
+				self.scans[self.scans.len() - 1] = Some(Scan::new(
 					self.first_buffer.take(),
 					self.second_buffer.take(),
 				));
+				self.scans.rotate_left(1);
+				self.scans.last_mut().take();
 			}
 		});
 	}
+}
+
+fn default_array<T, const N: usize>() -> [Option<T>; N] {
+	std::array::from_fn(|_| None)
 }
